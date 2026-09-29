@@ -9,7 +9,7 @@ service cloud.firestore {
       allow create: if roomId.size() >= 10
         && request.resource.data.keys().hasOnly(['createdAt', 'studentLang']);
       allow update: if request.resource.data.keys().hasOnly(['createdAt', 'studentLang'])
-        && request.resource.data.studentLang in ['en', 'ja', 'zh-CN', 'zh-TW'];
+        && request.resource.data.studentLang in ['en', 'ja', 'zh-CN', 'zh-TW', 'es', 'ru', 'fr', 'de'];
 
       match /messages/{msgId} {
         allow read, delete: if exists(/databases/$(database)/documents/rooms/$(roomId));
@@ -17,7 +17,7 @@ service cloud.firestore {
         allow create: if exists(/databases/$(database)/documents/rooms/$(roomId))
           && request.resource.data.keys().hasOnly(['from', 'lang', 'text_ko', 'text_student', 'ts'])
           && request.resource.data.from in ['teacher', 'student']
-          && request.resource.data.lang in ['en', 'ja', 'zh-CN', 'zh-TW']
+          && request.resource.data.lang in ['en', 'ja', 'zh-CN', 'zh-TW', 'es', 'ru', 'fr', 'de']
           && request.resource.data.text_student is string
           && request.resource.data.text_student.size() <= 4000
           && (request.resource.data.text_ko == null

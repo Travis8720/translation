@@ -13,6 +13,7 @@ const roomRef = roomId ? doc(db, "rooms", roomId) : null;
 // 학생 화면 문구 (번역은 선생님 컴퓨터가 하므로, 화면 문구는 미리 적어 둡니다)
 const STRINGS = {
   en: {
+    lowconf: "The speech may not have been recognized correctly. Please check the text (red underline = possible mistake) or say it again.",
     placeholder: "Type your message", send: "Send", change: "Change language",
     intro: "Your messages are translated into Korean for your teacher.",
     empty: "Write to your teacher here. You can also tap the microphone and speak.",
@@ -20,6 +21,7 @@ const STRINGS = {
     failed: "Could not send. Please try again.",
   },
   ja: {
+    lowconf: "音声が正しく認識されていない可能性があります。文を確認するか、もう一度話してください（赤い下線は間違いの可能性）。",
     placeholder: "メッセージを入力", send: "送信", change: "言語を変更",
     intro: "あなたのメッセージは先生のために韓国語に翻訳されます。",
     empty: "ここに先生へのメッセージを書いてください。マイクを押して話すこともできます。",
@@ -27,6 +29,7 @@ const STRINGS = {
     failed: "送信できませんでした。もう一度お試しください。",
   },
   "zh-CN": {
+    lowconf: "语音可能没有被准确识别。请检查文字（红色下划线表示可能有错），或再说一遍。",
     placeholder: "输入消息", send: "发送", change: "更换语言",
     intro: "你的消息会被翻译成韩语给老师看。",
     empty: "在这里给老师写消息，也可以点麦克风说话。",
@@ -34,11 +37,44 @@ const STRINGS = {
     failed: "发送失败，请再试一次。",
   },
   "zh-TW": {
+    lowconf: "語音可能沒有被準確辨識。請檢查文字（紅色底線表示可能有錯），或再說一次。",
     placeholder: "輸入訊息", send: "傳送", change: "更換語言",
     intro: "你的訊息會被翻譯成韓文給老師看。",
     empty: "在這裡給老師寫訊息，也可以點麥克風說話。",
     ended: "對話已結束，可以關閉此頁面。",
     failed: "傳送失敗，請再試一次。",
+  },
+  es: {
+    lowconf: "Puede que no se haya reconocido bien. Revisa el texto (subrayado rojo = posible error) o repítelo.",
+    placeholder: "Escribe tu mensaje", send: "Enviar", change: "Cambiar idioma",
+    intro: "Tus mensajes se traducen al coreano para tu profesor.",
+    empty: "Escribe aquí a tu profesor. También puedes tocar el micrófono y hablar.",
+    ended: "La conversación ha terminado. Puedes cerrar esta página.",
+    failed: "No se pudo enviar. Inténtalo de nuevo.",
+  },
+  ru: {
+    lowconf: "Речь могла быть распознана неточно. Проверьте текст (красное подчёркивание — возможная ошибка) или повторите.",
+    placeholder: "Введите сообщение", send: "Отправить", change: "Сменить язык",
+    intro: "Ваши сообщения переводятся на корейский для преподавателя.",
+    empty: "Пишите преподавателю здесь. Можно также нажать на микрофон и говорить.",
+    ended: "Разговор завершён. Можно закрыть эту страницу.",
+    failed: "Не удалось отправить. Попробуйте ещё раз.",
+  },
+  fr: {
+    lowconf: "La voix a peut-être été mal reconnue. Vérifiez le texte (soulignement rouge = erreur possible) ou répétez.",
+    placeholder: "Écrivez votre message", send: "Envoyer", change: "Changer de langue",
+    intro: "Vos messages sont traduits en coréen pour votre enseignant.",
+    empty: "Écrivez à votre enseignant ici. Vous pouvez aussi appuyer sur le micro et parler.",
+    ended: "La conversation est terminée. Vous pouvez fermer cette page.",
+    failed: "Envoi impossible. Veuillez réessayer.",
+  },
+  de: {
+    lowconf: "Die Sprache wurde evtl. nicht richtig erkannt. Bitte Text prüfen (rote Unterstreichung = möglicher Fehler) oder erneut sprechen.",
+    placeholder: "Nachricht eingeben", send: "Senden", change: "Sprache ändern",
+    intro: "Ihre Nachrichten werden für Ihre Lehrkraft ins Koreanische übersetzt.",
+    empty: "Schreiben Sie hier Ihrer Lehrkraft. Sie können auch auf das Mikrofon tippen und sprechen.",
+    ended: "Das Gespräch ist beendet. Sie können diese Seite schließen.",
+    failed: "Senden fehlgeschlagen. Bitte versuchen Sie es erneut.",
   },
 };
 let UI = STRINGS.en;
@@ -80,6 +116,7 @@ function render() {
 function applyUI(code) {
   UI = STRINGS[code] || STRINGS.en;
   input.placeholder = UI.placeholder;
+  input.lang = code; // 브라우저 맞춤법 검사(빨간 밑줄)가 이 언어로 동작
   sendBtn.textContent = UI.send;
   $("changeBtn").textContent = UI.change;
 }
@@ -136,6 +173,7 @@ async function send() {
       from: "student", lang, text_student: text, text_ko: null, ts: Date.now(),
     });
     input.value = "";
+    setUncertain(false);
     grow();
   } catch {
     $("error").textContent = UI.failed;
@@ -157,7 +195,13 @@ for (const L of LANGS) {
 }
 
 const grow = setupComposer(input, send);
-setupMic($("mic"), input, () => langByCode(lang)?.speech || "en-US");
+function setUncertain(on) {
+  input.classList.toggle("uncertain", !!on);
+  $("micHint").hidden = !on;
+  $("micHint").textContent = on ? UI.lowconf : "";
+}
+setupMic($("mic"), input, () => langByCode(lang)?.speech || "en-US", (ok) => setUncertain(ok === false));
+input.addEventListener("input", (e) => { if (!e.isTrusted) return; setUncertain(false); }); // 직접 고치면 안내 숨김
 sendBtn.addEventListener("click", send);
 $("changeBtn").addEventListener("click", showPicker);
 

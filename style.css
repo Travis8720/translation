@@ -101,8 +101,12 @@ button:focus-visible, textarea:focus-visible, input:focus-visible { outline: 3px
 /* 한국외대 스타일 상단 바 */
 .util-bar { background: var(--navy-dark); color: #C5D0E0; font-size: .78rem; padding: 6px 24px; display: flex; justify-content: flex-end; gap: 16px; }
 .site-head { background: var(--paper); border-bottom: 3px solid var(--teal); padding: 14px 24px; display: flex; align-items: center; gap: 14px; }
-.site-head .mark { width: 38px; height: 38px; background: var(--teal); color: #fff; display: grid; place-items: center; font-weight: 700; font-size: .95rem; border-radius: 3px; }
+.site-head .mark { min-width: 52px; height: 38px; padding: 0 8px; letter-spacing: .04em; background: var(--teal); color: #fff; display: grid; place-items: center; font-weight: 700; font-size: .9rem; border-radius: 3px; }
 .site-head .name { font-size: 1.15rem; font-weight: 700; color: var(--teal); line-height: 1.2; }
 .site-head .name small { display: block; font-size: .72rem; font-weight: 500; color: var(--muted); letter-spacing: .04em; }
 .site-foot { background: var(--navy-dark); color: #9FB0C8; font-size: .78rem; padding: 10px 24px; text-align: center; }
 @media (max-width: 760px) { .util-bar, .site-foot { display: none; } .site-head { padding: 10px 16px; } }
+
+/* 맞춤법 밑줄은 브라우저 기본(빨간 물결)을 쓰고, 음성 인식이 불확실할 때 안내 */
+.mic-hint { margin: 0; padding: 8px 16px; background: #FFF6DD; color: #6B4E00; border-top: 1px solid #E8D28A; font-size: .9rem; }
+.composer textarea.uncertain { border-color: var(--sun); box-shadow: 0 0 0 2px #F3E3B2; }

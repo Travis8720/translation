@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Chat</title>
+  <title>통역시스템</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💬</text></svg>">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -19,7 +19,7 @@
 
     <section id="pickView" class="pick" hidden>
       <h2>Choose your language</h2>
-      <p>言語を選んでください / 请选择语言 / 請選擇語言</p>
+      <p>言語を選んでください / 请选择语言 / 請選擇語言 / Elige tu idioma / Выберите язык / Choisissez votre langue / Sprache wählen</p>
       <div class="langs" id="langs"></div>
       <p class="error" id="pickError"></p>
     </section>
@@ -28,9 +28,10 @@
       <div class="log" id="log" aria-live="polite">
       </div>
       <p class="error" id="error"></p>
+      <p class="mic-hint" id="micHint" hidden></p>
       <div class="composer">
         <button class="icon-btn" id="mic" aria-label="Speak" aria-pressed="false">🎤</button>
-        <textarea id="input" rows="1" dir="auto" placeholder="Type your message"></textarea>
+        <textarea id="input" rows="1" dir="auto" spellcheck="true" placeholder="Type your message"></textarea>
         <button class="btn" id="send">Send</button>
       </div>
     </section>
