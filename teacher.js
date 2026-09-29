@@ -69,12 +69,16 @@ async function checkAvailability() {
 }
 
 // 버튼 클릭 직후(사용자 동작 안)에 모든 번역 모델 준비를 한꺼번에 시작해야 다운로드가 허용됩니다.
-function prepareAll() {
-  const jobs = [];
+// 직접 번역이 안 되는 언어쌍은 영어를 거치므로 영어 모델도 함께 준비합니다.
+async function prepareAll() {
+  const pairs = [];
   for (const L of LANGS) {
-    jobs.push(getTranslator("ko", L.tr), getTranslator(L.tr, "ko"));
+    pairs.push(["ko", L.tr], [L.tr, "ko"]);
+    if (L.tr !== "en") pairs.push(["ko", "en"], ["en", "ko"], ["en", L.tr], [L.tr, "en"]);
   }
-  return Promise.allSettled(jobs);
+  const uniq = [...new Map(pairs.map((p) => [p.join(">"), p])).values()];
+  const res = await Promise.allSettled(uniq.map(([s, t]) => getTranslator(s, t)));
+  return uniq.filter((_, i) => res[i].status === "rejected").map((p) => p.join("→"));
 }
 
 /* ---------- 대화방 ---------- */
@@ -233,8 +237,9 @@ $("startBtn").addEventListener("click", async () => {
   btn.disabled = true;
   btn.textContent = "번역 모델 준비 중… (처음에는 몇 분 걸릴 수 있습니다)";
   try {
-    await preparing;
+    const failed = await preparing;
     await openRoom(newRoomId(), true);
+    if (failed.length) showError(`일부 번역 모델을 준비하지 못했습니다: ${failed.join(", ")}`);
   } catch (e) {
     $("startError").textContent = `대화를 만들지 못했습니다: ${e.message} (firebase-config.js 설정을 확인하세요)`;
   } finally {
