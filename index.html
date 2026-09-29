@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>교사용 통역 대화</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💬</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body>
+  <main id="startView" class="start">
+    <div class="start-inner">
+      <h1>학생과 각자의 언어로 대화하기</h1>
+      <p>번역은 이 컴퓨터의 크롬 안에서 처리됩니다. 대화하는 동안 이 창을 닫지 마세요.</p>
+      <p id="noSupport" class="warn" hidden>이 브라우저에서는 내장 번역을 쓸 수 없습니다. 컴퓨터용 크롬 최신 버전(138 이상)으로 열어 주세요.</p>
+      <ul class="checks" id="checks"></ul>
+      <button id="startBtn" class="btn">번역 준비하고 새 대화 시작</button>
+      <p id="startError" class="error"></p>
+    </div>
+  </main>
+
+  <div id="sessionView" class="session" hidden>
+    <aside class="side">
+      <div class="qr-frame" id="qr"></div>
+      <p class="hint">학생에게 이 QR코드를 휴대폰 카메라로 찍게 하세요.</p>
+      <p class="link" id="link"></p>
+      <p class="status" id="status">학생 접속을 기다리는 중</p>
+      <div class="spacer"></div>
+      <button id="endBtn" class="btn danger-ghost">대화 끝내고 기록 삭제</button>
+    </aside>
+
+    <section class="chat">
+      <div class="log" id="log" aria-live="polite"></div>
+      <p class="error" id="error"></p>
+      <div class="composer">
+        <button class="icon-btn" id="mic" aria-label="말로 입력" aria-pressed="false" disabled>🎤</button>
+        <textarea id="input" rows="1" dir="auto" placeholder="학생이 접속하면 입력할 수 있습니다" disabled></textarea>
+        <button class="btn" id="send" disabled>보내기</button>
+      </div>
+    </section>
+  </div>
+
+  <script type="module" src="teacher.js"></script>
+</body>
+</html>

@@ -1,0 +1,34 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // 대화방: 방 코드(12자리 무작위)를 아는 사람만 접근. 방 목록 조회는 막음.
+    match /rooms/{roomId} {
+      allow get, delete: if roomId.size() >= 10;
+      allow list: if false;
+      allow create: if roomId.size() >= 10
+        && request.resource.data.keys().hasOnly(['createdAt', 'studentLang']);
+      allow update: if request.resource.data.keys().hasOnly(['createdAt', 'studentLang'])
+        && request.resource.data.studentLang in ['en', 'ja', 'zh-CN', 'zh-TW'];
+
+      match /messages/{msgId} {
+        allow read, delete: if exists(/databases/$(database)/documents/rooms/$(roomId));
+
+        allow create: if exists(/databases/$(database)/documents/rooms/$(roomId))
+          && request.resource.data.keys().hasOnly(['from', 'lang', 'text_ko', 'text_student', 'ts'])
+          && request.resource.data.from in ['teacher', 'student']
+          && request.resource.data.lang in ['en', 'ja', 'zh-CN', 'zh-TW']
+          && request.resource.data.text_student is string
+          && request.resource.data.text_student.size() <= 4000
+          && (request.resource.data.text_ko == null
+              || (request.resource.data.text_ko is string && request.resource.data.text_ko.size() <= 6000));
+
+        // 선생님 컴퓨터가 학생 메시지의 한국어 번역(text_ko)을 한 번만 채워 넣을 수 있음
+        allow update: if resource.data.text_ko == null
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['text_ko'])
+          && request.resource.data.text_ko is string
+          && request.resource.data.text_ko.size() <= 6000;
+      }
+    }
+  }
+}
