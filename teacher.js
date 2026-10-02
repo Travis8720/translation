@@ -29,6 +29,17 @@ function getTranslator(src, tgt) {
   return trCache.get(k);
 }
 
+// 번역 실패 사유를 알아보기 쉬운 한국어로 바꿈
+function trReason(e, L) {
+  const lang = L ? `${L.ko}(${L.name}) ` : "";
+  const m = String(e && (e.message || e.name) || "");
+  if (/지원하지 않습니다/.test(m)) return "이 브라우저는 내장 번역을 지원하지 않습니다. 컴퓨터용 크롬 최신 버전(138 이상)으로 여세요.";
+  if (/NotAllowed|user activation/i.test(m)) return `${lang}번역 모델을 내려받으려면 화면의 버튼을 한 번 눌러야 합니다. 새 대화를 다시 시작하세요.`;
+  if (/NotSupported|unsupported|not supported/i.test(m)) return `${lang}번역은 이 크롬에서 지원하지 않는 언어쌍입니다.`;
+  if (/network|fetch|download/i.test(m)) return `${lang}번역 모델을 내려받지 못했습니다. 인터넷 연결을 확인하고 새 대화를 다시 시작하세요.`;
+  return `${lang}번역 모델을 사용할 수 없습니다. 새 대화를 다시 시작해 모델을 준비하세요. (${m})`;
+}
+
 async function tr(text, src, tgt) {
   if (!hasTranslator) throw new Error("이 브라우저는 내장 번역을 지원하지 않습니다");
   try {
@@ -128,7 +139,7 @@ function translatePending(docs) {
     inflight.add(d.id);
     tr(m.text_student, L.tr, "ko")
       .then((t) => updateDoc(d.ref, { text_ko: t }))
-      .catch((e) => showError(`학생 메시지를 번역하지 못했습니다: ${e.message}`))
+      .catch((e) => showError(`학생 메시지를 번역하지 못했습니다. ${trReason(e, L)}`))
       .finally(() => inflight.delete(d.id));
   }
 }
@@ -186,7 +197,9 @@ async function send() {
   setInputEnabled(true);
   showError("");
   try {
-    const translated = await tr(text, "ko", L.tr);
+    let translated;
+    try { translated = await tr(text, "ko", L.tr); }
+    catch (e) { showError(`보내지 못했습니다. ${trReason(e, L)}`); return; }
     await addDoc(collection(db, "rooms", roomId, "messages"), {
       from: "teacher", lang: L.code, text_ko: text, text_student: translated, ts: Date.now(),
     });
