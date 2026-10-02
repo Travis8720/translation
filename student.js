@@ -13,6 +13,7 @@ const roomRef = roomId ? doc(db, "rooms", roomId) : null;
 // 학생 화면 문구 (번역은 선생님 컴퓨터가 하므로, 화면 문구는 미리 적어 둡니다)
 const STRINGS = {
   en: {
+    fileTitle: "HUFS Interpretation System - Conversation record", fileDate: "Date", fileMe: "Me", fileTeacher: "Teacher",
     save: "💾 Save", intro2: "This conversation is deleted when it ends. Tap Save to keep a copy.",
     lowconf: "The speech may not have been recognized correctly. Please check the text (red underline = possible mistake) or say it again.",
     placeholder: "Type your message", send: "Send", change: "Change language",
@@ -22,6 +23,7 @@ const STRINGS = {
     failed: "Could not send. Please try again.",
   },
   ja: {
+    fileTitle: "HUFS 通訳システム - 会話記録", fileDate: "日付", fileMe: "私", fileTeacher: "先生",
     save: "💾 保存", intro2: "会話が終了すると内容は削除されます。必要な場合は「保存」を押してください。",
     lowconf: "音声が正しく認識されていない可能性があります。文を確認するか、もう一度話してください（赤い下線は間違いの可能性）。",
     placeholder: "メッセージを入力", send: "送信", change: "言語を変更",
@@ -31,6 +33,7 @@ const STRINGS = {
     failed: "送信できませんでした。もう一度お試しください。",
   },
   "zh-CN": {
+    fileTitle: "HUFS 口译系统 - 对话记录", fileDate: "日期", fileMe: "我", fileTeacher: "老师",
     save: "💾 保存", intro2: "对话结束后内容会被删除。需要的话请点击“保存”。",
     lowconf: "语音可能没有被准确识别。请检查文字（红色下划线表示可能有错），或再说一遍。",
     placeholder: "输入消息", send: "发送", change: "更换语言",
@@ -40,6 +43,7 @@ const STRINGS = {
     failed: "发送失败，请再试一次。",
   },
   "zh-TW": {
+    fileTitle: "HUFS 口譯系統 - 對話記錄", fileDate: "日期", fileMe: "我", fileTeacher: "老師",
     save: "💾 儲存", intro2: "對話結束後內容會被刪除。需要的話請按「儲存」。",
     lowconf: "語音可能沒有被準確辨識。請檢查文字（紅色底線表示可能有錯），或再說一次。",
     placeholder: "輸入訊息", send: "傳送", change: "更換語言",
