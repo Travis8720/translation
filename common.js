@@ -61,7 +61,7 @@ export function setupComposer(textarea, onSend) {
   return grow;
 }
 
-export function bubble({ mine, main, sub, pending }) {
+export function bubble({ mine, main, sub, pending, back }) {
   const el = document.createElement("div");
   el.className = `msg ${mine ? "me" : "them"}`;
   const m = document.createElement("div");
@@ -75,6 +75,12 @@ export function bubble({ mine, main, sub, pending }) {
     s.dir = "auto";
     s.textContent = sub;
     el.appendChild(s);
+  }
+  if (back) {
+    const b = document.createElement("div");
+    b.className = "back";
+    b.textContent = back;
+    el.appendChild(b);
   }
   return el;
 }

@@ -127,3 +127,8 @@ button:focus-visible, textarea:focus-visible, input:focus-visible { outline: 3px
 @media (max-width: 760px) { .s-head { flex-wrap: wrap; } .s-head h1 { min-width: 0; font-size: .95rem; } }
 .save-btn { background: transparent; color: var(--teal); border: 1.5px solid var(--teal); }
 .save-btn:hover:not(:disabled) { background: var(--teal); color: #fff; }
+
+/* 번역 품질 보조 */
+.tip { margin: 0; padding: 6px 16px; background: #f6f1e7; color: var(--muted); font-size: .8rem; border-top: 1px solid var(--line); }
+.msg .back { margin-top: .4em; font-size: .78rem; opacity: .8; color: #e8d9bd; overflow-wrap: anywhere; }
+.msg .back.warn-back { color: #ffd9a8; }

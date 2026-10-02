@@ -7,7 +7,7 @@
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💬</text></svg>">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
   <link rel="stylesheet" href="signature.css">
-  <link rel="stylesheet" href="style.css?v=4">
+  <link rel="stylesheet" href="style.css?v=5">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
 <body>
@@ -44,6 +44,8 @@
     <section class="chat">
       <div class="log" id="log" aria-live="polite"></div>
       <p class="error" id="error"></p>
+      <p class="mic-hint" id="micHint" hidden></p>
+      <p class="tip">💡 짧고 완결된 문장으로 쓰면 번역이 더 정확합니다. 줄임말·속어·생략된 말은 피하고, 보낸 뒤 아래 '역번역'으로 뜻이 맞는지 확인하세요.</p>
       <div class="composer">
         <button class="icon-btn" id="mic" aria-label="말로 입력" aria-pressed="false" disabled>🎤</button>
         <textarea id="input" rows="1" dir="auto" placeholder="학생이 접속하면 입력할 수 있습니다" disabled></textarea>
@@ -54,6 +56,6 @@
 
   <footer class="site-foot">Translate Chat · 번역은 이 컴퓨터 안에서 처리됩니다</footer>
 
-  <script type="module" src="teacher.js?v=4"></script>
+  <script type="module" src="teacher.js?v=5"></script>
 </body>
 </html>

@@ -1,4 +1,4 @@
-import { db, LANGS, langByCode, newRoomId, setupMic, setupComposer, bubble } from "./common.js";
+import { db, LANGS, langByCode, newRoomId, setupMic, setupComposer, bubble } from "./common.js?v=5";
 import {
   doc, setDoc, getDoc, deleteDoc, updateDoc, onSnapshot, collection, addDoc, query, orderBy, getDocs, writeBatch,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
@@ -106,6 +106,14 @@ function setInputEnabled(on) {
     : "학생이 접속하면 입력할 수 있습니다";
 }
 
+const norm = (t) => String(t || "").replace(/[\s.,!?~。、！？]/g, "");
+function backLabel(m) {
+  if (typeof m.text_back !== "string") return "";
+  return norm(m.text_back) === norm(m.text_ko)
+    ? "↩ 역번역: 일치 ✓"
+    : `↩ 역번역: ${m.text_back}`;
+}
+
 function render() {
   $("saveBtn").disabled = lastMsgs.length === 0;
   const log = $("log");
@@ -121,7 +129,7 @@ function render() {
   }
   for (const m of lastMsgs) {
     if (m.from === "teacher") {
-      log.appendChild(bubble({ mine: true, main: m.text_ko, sub: m.text_student }));
+      log.appendChild(bubble({ mine: true, main: m.text_ko, sub: m.text_student, back: backLabel(m) }));
     } else {
       const done = typeof m.text_ko === "string";
       log.appendChild(bubble({ mine: false, main: done ? m.text_ko : "번역 중…", sub: m.text_student, pending: !done }));
@@ -236,7 +244,12 @@ async function endRoom() {
 }
 
 const grow = setupComposer(input, send);
-setupMic(micBtn, input, () => "ko-KR");
+const micHint = $("micHint");
+setupMic(micBtn, input, () => "ko-KR", (ok) => {
+  micHint.hidden = ok !== false;
+  micHint.textContent = ok === false ? "음성이 정확히 인식되지 않았을 수 있습니다. 글자를 확인하고 고친 뒤 보내세요." : "";
+});
+input.addEventListener("input", (e) => { if (e.isTrusted) micHint.hidden = true; });
 sendBtn.addEventListener("click", send);
 $("endBtn").addEventListener("click", endRoom);
 $("saveBtn").addEventListener("click", saveChat);
