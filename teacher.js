@@ -107,11 +107,13 @@ function setInputEnabled(on) {
 }
 
 const norm = (t) => String(t || "").replace(/[\s.,!?~。、！？]/g, "");
+const backMap = new Map(); // 메시지 id → 역번역 (이 화면에서만 보관, 서버에는 저장하지 않음)
 function backLabel(m) {
-  if (typeof m.text_back !== "string") return "";
-  return norm(m.text_back) === norm(m.text_ko)
+  const back = backMap.get(m.id);
+  if (typeof back !== "string") return "";
+  return norm(back) === norm(m.text_ko)
     ? "↩ 역번역: 일치 ✓"
-    : `↩ 역번역: ${m.text_back}`;
+    : `↩ 역번역: ${back}`;
 }
 
 function render() {
@@ -177,7 +179,7 @@ async function openRoom(id, isNew) {
 
   const q = query(collection(db, "rooms", id, "messages"), orderBy("ts"));
   unsubs.push(onSnapshot(q, (snap) => {
-    lastMsgs = snap.docs.map((d) => d.data());
+    lastMsgs = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
     render();
     translatePending(snap.docs);
   }, (e) => showError(`연결 오류: ${e.message}`)));
@@ -189,6 +191,7 @@ function closeLocal() {
   roomId = null;
   studentLang = null;
   lastMsgs = [];
+  backMap.clear();
   history.replaceState(null, "", location.pathname);
   $("log").replaceChildren();
   input.value = "";
@@ -209,9 +212,13 @@ async function send() {
     let translated;
     try { translated = await tr(text, "ko", L.tr); }
     catch (e) { showError(`보내지 못했습니다. ${trReason(e, L)}`); return; }
-    await addDoc(collection(db, "rooms", roomId, "messages"), {
+    const ref = await addDoc(collection(db, "rooms", roomId, "messages"), {
       from: "teacher", lang: L.code, text_ko: text, text_student: translated, ts: Date.now(),
     });
+    // 역번역: 학생에게 간 문장을 다시 한국어로 번역해 뜻이 유지됐는지 확인 (실패해도 전송에는 영향 없음)
+    tr(translated, L.tr, "ko")
+      .then((back) => { backMap.set(ref.id, back); render(); })
+      .catch(() => {});
     input.value = "";
     grow();
   } catch (e) {
