@@ -40,7 +40,21 @@ function trReason(e, L) {
   return `${lang}번역 모델을 사용할 수 없습니다. 새 대화를 다시 시작해 모델을 준비하세요. (${m})`;
 }
 
+// 긴 글은 문장 단위로 나눠 번역한 뒤 이어 붙임 (번역기는 긴 문장에서 품질이 떨어짐)
+const SPLIT_OVER = 60;
 async function tr(text, src, tgt) {
+  const parts = text.length > SPLIT_OVER ? (text.match(/[^.!?。！？\n]+[.!?。！？]*[ \t]*\n*|\n+/g) || []) : [];
+  if (parts.filter((p) => p.trim()).length < 2) return trOne(text, src, tgt);
+  const cjk = tgt === "ja" || tgt.startsWith("zh");
+  const out = await Promise.all(parts.map(async (p) => {
+    const body = p.trim();
+    if (!body) return "\n";
+    return { t: await trOne(body, src, tgt), nl: p.includes("\n") };
+  }));
+  return out.map((o, i) => (typeof o === "string" ? o : o.t + (o.nl ? "\n" : cjk || i === out.length - 1 ? "" : " "))).join("").trim();
+}
+
+async function trOne(text, src, tgt) {
   if (!hasTranslator) throw new Error("이 브라우저는 내장 번역을 지원하지 않습니다");
   try {
     return await (await getTranslator(src, tgt)).translate(text);
