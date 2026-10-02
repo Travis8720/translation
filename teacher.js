@@ -106,17 +106,6 @@ function setInputEnabled(on) {
     : "학생이 접속하면 입력할 수 있습니다";
 }
 
-const norm = (t) => String(t || "").replace(/[\s.,!?~。、！？]/g, "");
-const backMap = new Map(); // 메시지 id → 역번역 (이 화면에서만 보관, 서버에는 저장하지 않음)
-function backLabel(m) {
-  const back = backMap.get(m.id);
-  if (back && back.fail) return `↩ 역번역을 하지 못했습니다. ${back.fail}`;
-  if (typeof back !== "string") return "↩ 역번역 중…";
-  return norm(back) === norm(m.text_ko)
-    ? "↩ 역번역: 일치 ✓"
-    : `↩ 역번역: ${back}`;
-}
-
 function render() {
   $("saveBtn").disabled = lastMsgs.length === 0;
   const log = $("log");
@@ -132,7 +121,7 @@ function render() {
   }
   for (const m of lastMsgs) {
     if (m.from === "teacher") {
-      log.appendChild(bubble({ mine: true, main: m.text_ko, sub: m.text_student, back: backLabel(m) }));
+      log.appendChild(bubble({ mine: true, main: m.text_ko, sub: m.text_student }));
     } else {
       const done = typeof m.text_ko === "string";
       log.appendChild(bubble({ mine: false, main: done ? m.text_ko : "번역 중…", sub: m.text_student, pending: !done }));
@@ -192,7 +181,6 @@ function closeLocal() {
   roomId = null;
   studentLang = null;
   lastMsgs = [];
-  backMap.clear();
   history.replaceState(null, "", location.pathname);
   $("log").replaceChildren();
   input.value = "";
@@ -216,10 +204,6 @@ async function send() {
     const ref = await addDoc(collection(db, "rooms", roomId, "messages"), {
       from: "teacher", lang: L.code, text_ko: text, text_student: translated, ts: Date.now(),
     });
-    // 역번역: 학생에게 간 문장을 다시 한국어로 번역해 뜻이 유지됐는지 확인 (실패해도 전송에는 영향 없음)
-    tr(translated, L.tr, "ko")
-      .then((back) => { backMap.set(ref.id, back); render(); })
-      .catch((e) => { backMap.set(ref.id, { fail: trReason(e, L) }); render(); });
     input.value = "";
     grow();
   } catch (e) {
