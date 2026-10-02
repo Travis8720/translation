@@ -1,4 +1,4 @@
-import { db, LANGS, langByCode, setupMic, setupComposer, bubble } from "./common.js?v=5";
+import { db, LANGS, langByCode, setupMic, setupComposer, bubble } from "./common.js?v=9";
 import {
   doc, getDoc, updateDoc, onSnapshot, collection, addDoc, query, orderBy,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
