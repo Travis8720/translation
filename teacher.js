@@ -110,7 +110,8 @@ const norm = (t) => String(t || "").replace(/[\s.,!?~。、！？]/g, "");
 const backMap = new Map(); // 메시지 id → 역번역 (이 화면에서만 보관, 서버에는 저장하지 않음)
 function backLabel(m) {
   const back = backMap.get(m.id);
-  if (typeof back !== "string") return "";
+  if (back && back.fail) return `↩ 역번역을 하지 못했습니다. ${back.fail}`;
+  if (typeof back !== "string") return "↩ 역번역 중…";
   return norm(back) === norm(m.text_ko)
     ? "↩ 역번역: 일치 ✓"
     : `↩ 역번역: ${back}`;
@@ -218,7 +219,7 @@ async function send() {
     // 역번역: 학생에게 간 문장을 다시 한국어로 번역해 뜻이 유지됐는지 확인 (실패해도 전송에는 영향 없음)
     tr(translated, L.tr, "ko")
       .then((back) => { backMap.set(ref.id, back); render(); })
-      .catch(() => {});
+      .catch((e) => { backMap.set(ref.id, { fail: trReason(e, L) }); render(); });
     input.value = "";
     grow();
   } catch (e) {
