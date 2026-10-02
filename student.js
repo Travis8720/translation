@@ -44,38 +44,6 @@ const STRINGS = {
     ended: "對話已結束，可以關閉此頁面。",
     failed: "傳送失敗，請再試一次。",
   },
-  es: {
-    lowconf: "Puede que no se haya reconocido bien. Revisa el texto (subrayado rojo = posible error) o repítelo.",
-    placeholder: "Escribe tu mensaje", send: "Enviar", change: "Cambiar idioma",
-    intro: "Tus mensajes se traducen al coreano para tu profesor.",
-    empty: "Escribe aquí a tu profesor. También puedes tocar el micrófono y hablar.",
-    ended: "La conversación ha terminado. Puedes cerrar esta página.",
-    failed: "No se pudo enviar. Inténtalo de nuevo.",
-  },
-  ru: {
-    lowconf: "Речь могла быть распознана неточно. Проверьте текст (красное подчёркивание — возможная ошибка) или повторите.",
-    placeholder: "Введите сообщение", send: "Отправить", change: "Сменить язык",
-    intro: "Ваши сообщения переводятся на корейский для преподавателя.",
-    empty: "Пишите преподавателю здесь. Можно также нажать на микрофон и говорить.",
-    ended: "Разговор завершён. Можно закрыть эту страницу.",
-    failed: "Не удалось отправить. Попробуйте ещё раз.",
-  },
-  fr: {
-    lowconf: "La voix a peut-être été mal reconnue. Vérifiez le texte (soulignement rouge = erreur possible) ou répétez.",
-    placeholder: "Écrivez votre message", send: "Envoyer", change: "Changer de langue",
-    intro: "Vos messages sont traduits en coréen pour votre enseignant.",
-    empty: "Écrivez à votre enseignant ici. Vous pouvez aussi appuyer sur le micro et parler.",
-    ended: "La conversation est terminée. Vous pouvez fermer cette page.",
-    failed: "Envoi impossible. Veuillez réessayer.",
-  },
-  de: {
-    lowconf: "Die Sprache wurde evtl. nicht richtig erkannt. Bitte Text prüfen (rote Unterstreichung = möglicher Fehler) oder erneut sprechen.",
-    placeholder: "Nachricht eingeben", send: "Senden", change: "Sprache ändern",
-    intro: "Ihre Nachrichten werden für Ihre Lehrkraft ins Koreanische übersetzt.",
-    empty: "Schreiben Sie hier Ihrer Lehrkraft. Sie können auch auf das Mikrofon tippen und sprechen.",
-    ended: "Das Gespräch ist beendet. Sie können diese Seite schließen.",
-    failed: "Senden fehlgeschlagen. Bitte versuchen Sie es erneut.",
-  },
 };
 let UI = STRINGS.en;
 let lang = null;

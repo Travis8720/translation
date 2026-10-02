@@ -139,7 +139,7 @@ async function openRoom(id, isNew) {
   if (isNew) await setDoc(doc(db, "rooms", id), { createdAt: Date.now(), studentLang: null });
 
   $("qr").replaceChildren();
-  new QRCode($("qr"), { text: studentUrl(id), width: 240, height: 240, correctLevel: QRCode.CorrectLevel.M });
+  new QRCode($("qr"), { text: studentUrl(id), width: 168, height: 168, correctLevel: QRCode.CorrectLevel.M });
   $("link").textContent = studentUrl(id);
   $("startView").hidden = true;
   $("sessionView").hidden = false;

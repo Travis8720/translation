@@ -10,10 +10,6 @@ export const LANGS = [
   { code: "ja", tr: "ja", name: "日本語", ko: "일본어", speech: "ja-JP" },
   { code: "zh-CN", tr: "zh", name: "简体中文", ko: "중국어(간체)", speech: "zh-CN" },
   { code: "zh-TW", tr: "zh-Hant", name: "繁體中文", ko: "중국어(번체)", speech: "zh-TW" },
-  { code: "es", tr: "es", name: "Español", ko: "스페인어", speech: "es-ES" },
-  { code: "ru", tr: "ru", name: "Русский", ko: "러시아어", speech: "ru-RU" },
-  { code: "fr", tr: "fr", name: "Français", ko: "프랑스어", speech: "fr-FR" },
-  { code: "de", tr: "de", name: "Deutsch", ko: "독일어", speech: "de-DE" },
 ];
 export const langByCode = (c) => LANGS.find((l) => l.code === c) || null;
 

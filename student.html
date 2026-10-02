@@ -5,21 +5,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>통역시스템</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💬</text></svg>">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="s-app">
     <header class="s-head">
+      <img class="logo" src="logo.png" alt="HUFS">
       <h1 id="headTitle">🌐 Language / 언어</h1>
       <button id="changeBtn" class="btn plain" hidden>Change language</button>
     </header>
 
     <section id="pickView" class="pick" hidden>
       <h2>Choose your language</h2>
-      <p>言語を選んでください / 请选择语言 / 請選擇語言 / Elige tu idioma / Выберите язык / Choisissez votre langue / Sprache wählen</p>
+      <p>言語を選んでください / 请选择语言 / 請選擇語言</p>
       <div class="langs" id="langs"></div>
       <p class="error" id="pickError"></p>
     </section>
