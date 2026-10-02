@@ -6,13 +6,14 @@
   <title>통역시스템</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💬</text></svg>">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
-  <link rel="stylesheet" href="style.css?v=3">
+  <link rel="stylesheet" href="style.css?v=4">
 </head>
 <body>
   <div class="s-app">
     <header class="s-head">
       <img class="logo" src="logo.png" alt="HUFS">
       <h1 id="headTitle">🌐 Language / 언어</h1>
+      <button id="saveBtn" class="btn plain" hidden>💾 Save</button>
       <button id="changeBtn" class="btn plain" hidden>Change language</button>
     </header>
 
@@ -24,6 +25,7 @@
     </section>
 
     <section id="chatView" class="chat" hidden>
+      <p class="ended-bar" id="endedBar" hidden></p>
       <div class="log" id="log" aria-live="polite">
       </div>
       <p class="error" id="error"></p>

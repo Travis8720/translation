@@ -107,6 +107,7 @@ function setInputEnabled(on) {
 }
 
 function render() {
+  $("saveBtn").disabled = lastMsgs.length === 0;
   const log = $("log");
   log.replaceChildren();
   if (lastMsgs.length === 0) {
@@ -238,6 +239,36 @@ const grow = setupComposer(input, send);
 setupMic(micBtn, input, () => "ko-KR");
 sendBtn.addEventListener("click", send);
 $("endBtn").addEventListener("click", endRoom);
+$("saveBtn").addEventListener("click", saveChat);
+
+// 대화를 텍스트 파일로 저장 (한국어 + 학생 언어)
+function saveChat() {
+  if (!lastMsgs.length) return;
+  const L = langByCode(studentLang);
+  const pad = (n) => String(n).padStart(2, "0");
+  const hm = (t) => { const d = new Date(t); return `${pad(d.getHours())}:${pad(d.getMinutes())}`; };
+  const now = new Date();
+  const date = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+  const lines = [
+    "한국외국어대학교 통역시스템 대화 기록",
+    `날짜: ${date} ${hm(now)}`,
+    `학생 언어: ${L ? `${L.ko}(${L.name})` : "-"}`,
+    "------------------------------------------------------------",
+  ];
+  for (const m of lastMsgs) {
+    lines.push("", `[${hm(m.ts)}] ${m.from === "teacher" ? "교사" : "학생"}`);
+    lines.push(`  한국어: ${typeof m.text_ko === "string" ? m.text_ko : "(번역 중)"}`);
+    lines.push(`  ${L ? L.name : "학생 언어"}: ${m.text_student || ""}`);
+  }
+  const blob = new Blob(["\uFEFF" + lines.join("\r\n") + "\r\n"], { type: "text/plain;charset=utf-8" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `대화기록-${date}-${pad(now.getHours())}${pad(now.getMinutes())}.txt`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+}
 
 $("startBtn").addEventListener("click", async () => {
   const btn = $("startBtn");

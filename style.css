@@ -118,3 +118,12 @@ button:focus-visible, textarea:focus-visible, input:focus-visible { outline: 3px
 /* 맞춤법 밑줄은 브라우저 기본(빨간 물결)을 쓰고, 음성 인식이 불확실할 때 안내 */
 .mic-hint { margin: 0; padding: 8px 16px; background: #FFF6DD; color: #6B4E00; border-top: 1px solid #E8D28A; font-size: .9rem; }
 .composer textarea.uncertain { border-color: var(--sun); box-shadow: 0 0 0 2px #F3E3B2; }
+
+/* 대화 저장 / 종료 안내 */
+.s-head .btn.plain { white-space: nowrap; }
+.s-head .logo { flex: none; }
+.ended-bar { margin: 0; padding: 10px 16px; background: #f6f1e7; color: var(--teal); border-bottom: 1px solid var(--line); font-weight: 700; font-size: .92rem; }
+.intro + .intro { margin-top: 0; }
+@media (max-width: 760px) { .s-head { flex-wrap: wrap; } .s-head h1 { min-width: 0; font-size: .95rem; } }
+.save-btn { background: transparent; color: var(--teal); border: 1.5px solid var(--teal); }
+.save-btn:hover:not(:disabled) { background: var(--teal); color: #fff; }
