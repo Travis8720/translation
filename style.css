@@ -104,7 +104,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible { outline: 3px
 .util-bar { background: var(--navy-dark); color: #c9d6e6; font-size: .75rem; padding: 5px 24px; display: flex; justify-content: flex-end; gap: 16px; letter-spacing: .06em; }
 .site-head { background: linear-gradient(135deg, #002d56 0%, #012647 60%, #001c38 100%); color: #fff; border-bottom: 3px solid var(--sun); position: relative; }
 .site-head::before { content: ""; position: absolute; inset: 0; background: radial-gradient(700px 200px at 88% -30%, rgba(204,179,159,.22), transparent 70%); pointer-events: none; }
-.site-head .wrap { max-width: 1240px; margin: 0 auto; padding: 14px 24px; display: flex; align-items: center; gap: 18px; position: relative; }
+.site-head .wrap { max-width: none; margin: 0; padding: 14px 32px; display: flex; align-items: center; gap: 18px; position: relative; }
 .logo { height: 34px; width: auto; display: block; }
 .site-head .name { font-size: 1.15rem; font-weight: 700; line-height: 1.2; padding-left: 18px; border-left: 1px solid rgba(204,179,159,.5); letter-spacing: -.01em; }
 .site-head .name small { display: block; font-size: .68rem; font-weight: 500; color: var(--sand); letter-spacing: .12em; }

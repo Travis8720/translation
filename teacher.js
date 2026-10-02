@@ -237,9 +237,8 @@ $("startBtn").addEventListener("click", async () => {
   btn.disabled = true;
   btn.textContent = "번역 모델 준비 중… (처음에는 몇 분 걸릴 수 있습니다)";
   try {
-    const failed = await preparing;
+    await preparing;
     await openRoom(newRoomId(), true);
-    if (failed.length) showError(`일부 번역 모델을 준비하지 못했습니다: ${failed.join(", ")}`);
   } catch (e) {
     $("startError").textContent = `대화를 만들지 못했습니다: ${e.message} (firebase-config.js 설정을 확인하세요)`;
   } finally {
