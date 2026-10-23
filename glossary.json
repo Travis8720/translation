@@ -9,7 +9,7 @@
   {"ko": "학과사무실", "en": "department office"},
   {"ko": "국제학부", "en": "DIS"},
   {"ko": "이수구분 수정", "en": "reclassification of credits"},
-  {"ko": "자선", "en": "elective"},
+  {"ko": ["자선", "자유선택"], "en": "elective"},
   {"ko": "교양", "en": "liberal arts"},
   {"ko": "부전공", "en": "minor"},
   {"ko": "이중전공", "en": "double major"},
