@@ -1,5 +1,6 @@
 import { maskTerms, unmaskTerms, glossaryReady, listTerms, addTerm, removeTerm, exportUser, importUser } from "./glossary.js?v=2";
-import { db, LANGS, langByCode, newRoomId, setupMic, setupComposer, bubble, hydrateIcons, setupFontSize } from "./common.js?v=11";
+import { FIXED_ROOM_ID } from "./fixed-room.js?v=1";
+import { db, LANGS, langByCode, newRoomId, setupMic, setupComposer, bubble, hydrateIcons, setupFontSize } from "./common.js?v=12";
 import {
   doc, setDoc, getDoc, deleteDoc, updateDoc, onSnapshot, collection, addDoc, query, orderBy, getDocs, writeBatch,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
@@ -241,20 +242,35 @@ async function send() {
   }
 }
 
+// 대화방의 메시지와 방 자체를 모두 삭제
+async function purgeRoom(id) {
+  const msgs = await getDocs(collection(db, "rooms", id, "messages"));
+  let batch = writeBatch(db);
+  let n = 0;
+  for (const d of msgs.docs) {
+    batch.delete(d.ref);
+    if (++n % 400 === 0) { await batch.commit(); batch = writeBatch(db); }
+  }
+  await batch.commit();
+  await deleteDoc(doc(db, "rooms", id));
+}
+
+// 카드의 고정 QR과 같은 코드로 방을 연다. 이미 열린 대화가 남아 있으면 확인 후 지운다.
+async function openFixedRoom() {
+  const snap = await getDoc(doc(db, "rooms", FIXED_ROOM_ID));
+  if (snap.exists()) {
+    if (!confirm("이미 열려 있는 대화가 있습니다. 새로 시작하면 그 대화 기록이 모두 삭제됩니다. 계속할까요?")) return;
+    await purgeRoom(FIXED_ROOM_ID);
+  }
+  await openRoom(FIXED_ROOM_ID, true);
+}
+
 async function endRoom() {
   if (!roomId) return;
   if (!confirm("대화를 끝내면 이 대화 기록이 모두 삭제되고 학생 화면도 종료됩니다. 계속할까요?")) return;
   const id = roomId;
   try {
-    const msgs = await getDocs(collection(db, "rooms", id, "messages"));
-    let batch = writeBatch(db);
-    let n = 0;
-    for (const d of msgs.docs) {
-      batch.delete(d.ref);
-      if (++n % 400 === 0) { await batch.commit(); batch = writeBatch(db); }
-    }
-    await batch.commit();
-    await deleteDoc(doc(db, "rooms", id));
+    await purgeRoom(id);
     closeLocal();
   } catch (e) {
     showError(`삭제하지 못했습니다: ${e.message}`);
@@ -327,6 +343,30 @@ $("gImport").addEventListener("change", async (e) => {
 });
 document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !gPanel.hidden) closeGlossary(); });
 
+// 카드용 고정 QR: 한 번 인쇄해서 계속 쓰는 QR (Canva 카드에 넣는 용도)
+const cPanel = $("cardPanel");
+function openCard() {
+  const box = $("cardQr");
+  box.replaceChildren();
+  new QRCode(box, { text: studentUrl(FIXED_ROOM_ID), width: 320, height: 320, correctLevel: QRCode.CorrectLevel.H });
+  $("cardLink").textContent = studentUrl(FIXED_ROOM_ID);
+  cPanel.hidden = false;
+  $("cClose").focus();
+}
+const closeCard = () => { cPanel.hidden = true; $("cBtn").focus(); };
+$("cBtn").addEventListener("click", openCard);
+$("cClose").addEventListener("click", closeCard);
+cPanel.addEventListener("click", (e) => { if (e.target === cPanel) closeCard(); });
+$("cSave").addEventListener("click", () => {
+  const canvas = $("cardQr").querySelector("canvas");
+  const img = $("cardQr").querySelector("img");
+  const a = document.createElement("a");
+  a.href = canvas ? canvas.toDataURL("image/png") : img.src;
+  a.download = "card-qr.png";
+  document.body.appendChild(a); a.click(); a.remove();
+});
+document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !cPanel.hidden) closeCard(); });
+
 // QR 크게 보기 (교실 뒤쪽에서도 스캔할 수 있게 전체 화면으로 표시)
 const qrOverlay = $("qrOverlay");
 function openQrBig() {
@@ -386,7 +426,7 @@ $("startBtn").addEventListener("click", async () => {
   btn.textContent = "번역 모델 준비 중… (처음에는 몇 분 걸릴 수 있습니다)";
   try {
     await preparing;
-    await openRoom(newRoomId(), true);
+    await openFixedRoom();
   } catch (e) {
     $("startError").textContent = `대화를 만들지 못했습니다: ${e.message} (firebase-config.js 설정을 확인하세요)`;
   } finally {

@@ -118,7 +118,7 @@ button:focus-visible, textarea:focus-visible, input:focus-visible { outline: 3px
 .lang:hover:not(:disabled) { border-color: var(--sun); background: #f7f4ec; }
 .lang:active { transform: scale(.99); }
 .intro { font-size: .88rem; color: var(--muted); text-align: center; margin: 0 0 4px; }
-.notice { margin: auto; padding: 32px 20px; text-align: center; color: var(--muted); }
+.notice { white-space: pre-line; margin: auto; padding: 32px 20px; text-align: center; color: var(--muted); }
 
 /* 번역 준비 상태 표시 (교사 시작 화면) */
 .checks { list-style: none; padding: 0; margin: 0 0 1.5rem; border: 1px solid var(--line); border-radius: 4px; background: var(--paper); }
@@ -199,3 +199,6 @@ button:focus-visible, textarea:focus-visible, input:focus-visible { outline: 3px
 .g-empty { color: var(--muted); justify-content: center; }
 .g-foot { display: flex; gap: 8px; flex-wrap: wrap; }
 .g-foot .btn { font-size: .85rem; cursor: pointer; }
+
+/* 카드용 고정 QR */
+.card-qr { display: flex; justify-content: center; padding: 16px; border: 1px solid var(--line); border-radius: 6px; line-height: 0; background: #fff; }

@@ -7,11 +7,12 @@
   <link rel="icon" href="logo.png">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
   <link rel="stylesheet" href="signature.css">
-  <link rel="stylesheet" href="style.css?v=9">
+  <link rel="stylesheet" href="style.css?v=10">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
 <body>
   <div class="util-bar">
+    <button id="cBtn" class="util-btn wide" data-icon="qr" data-size="16" aria-haspopup="dialog">카드 QR</button>
     <button id="gBtn" class="util-btn wide" data-icon="book" data-size="16" aria-haspopup="dialog">용어집</button>
     <button id="fontBtn" class="util-btn" data-icon="text" data-size="16" aria-label="글자 크기" aria-pressed="false" title="글자 크기"></button>
     <span>KOR</span><span>ENG</span>
@@ -94,8 +95,23 @@
     </div>
   </div>
 
-  <footer class="site-foot">Translate Chat · 번역은 이 컴퓨터 안에서 처리됩니다 · v17</footer>
+  <div id="cardPanel" class="modal" role="dialog" aria-modal="true" aria-labelledby="cTitle" hidden>
+    <div class="modal-card">
+      <div class="modal-head">
+        <h2 id="cTitle">카드용 고정 QR</h2>
+        <button id="cClose" class="close-x" data-icon="close" data-size="20" aria-label="닫기"></button>
+      </div>
+      <p class="hint">이 QR은 바뀌지 않습니다. 이미지로 저장해서 카드(Canva)에 넣고 인쇄하면, 학생이 직접 찍고 들어올 수 있습니다. 대화는 이 컴퓨터에서 <b>새 대화 시작</b>을 눌러야 열립니다.</p>
+      <div class="card-qr" id="cardQr"></div>
+      <p class="link" id="cardLink"></p>
+      <div class="g-foot">
+        <button id="cSave" class="btn" type="button" data-icon="download" data-size="16">QR 이미지 저장 (PNG)</button>
+      </div>
+    </div>
+  </div>
 
-  <script type="module" src="teacher.js?v=17"></script>
+  <footer class="site-foot">Translate Chat · 번역은 이 컴퓨터 안에서 처리됩니다 · v18</footer>
+
+  <script type="module" src="teacher.js?v=18"></script>
 </body>
 </html>

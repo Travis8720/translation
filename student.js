@@ -1,4 +1,4 @@
-import { db, LANGS, langByCode, setupMic, setupComposer, bubble, icon, hydrateIcons, setupFontSize } from "./common.js?v=11";
+import { db, LANGS, langByCode, setupMic, setupComposer, bubble, icon, hydrateIcons, setupFontSize } from "./common.js?v=12";
 import {
   doc, getDoc, updateDoc, onSnapshot, collection, addDoc, query, orderBy,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
@@ -68,8 +68,16 @@ function notice(text) {
   $("notice").textContent = text;
 }
 
-function saveLang(code) { try { localStorage.setItem(`lang:${roomId}`, code); } catch {} }
-function loadLang() { try { return localStorage.getItem(`lang:${roomId}`); } catch { return null; } }
+// 고정 QR은 같은 방 코드를 계속 쓰므로, 대화가 새로 열릴 때마다 달라지는 createdAt 까지 키에 넣어 이전 사람과 구분
+let roomCreated = 0;
+const langKey = () => `lang:${roomId}:${roomCreated}`;
+function saveLang(code) { try { localStorage.setItem(langKey(), code); } catch {} }
+function loadLang() { try { return localStorage.getItem(langKey()); } catch { return null; } }
+
+const NOT_READY = "The conversation has not started yet or has ended.\nPlease wait a moment or ask the staff.\n会話はまだ始まっていないか、終了しました。しばらくお待ちいただくか、スタッフにお声がけください。\n对话尚未开始或已结束。请稍候或联系工作人员。\n對話尚未開始或已結束。請稍候或洽工作人員。";
+const BUSY = "This conversation is already in use.\nPlease ask the staff.\nすでに使用中です。スタッフにお声がけください。\n当前正在使用中，请联系工作人员。\n目前使用中，請洽工作人員。";
+const MAX_AGE = 10 * 60 * 60 * 1000; // 10시간 지난 방은 지난 대화가 남은 것으로 보고 들어가지 않음
+const fresh = (d) => d && Date.now() - (d.createdAt || 0) < MAX_AGE;
 
 function render() {
   const log = $("log");
@@ -123,6 +131,9 @@ async function chooseLang(code) {
   $("pickError").textContent = "";
   document.querySelectorAll(".lang").forEach((b) => (b.disabled = true));
   try {
+    // 이미 다른 사람이 쓰는 대화면 들어가지 않음 (같은 폰으로 다시 들어오는 경우는 허용)
+    const cur = (await getDoc(roomRef)).data();
+    if (cur && cur.studentLang && !loadLang()) { notice(BUSY); return; }
     await updateDoc(roomRef, { studentLang: code });
     lang = code;
     saveLang(code);
@@ -236,9 +247,17 @@ function saveChat() {
 
 (async () => {
   if (!roomId) { notice("Please scan the QR code again. / QRコードをもう一度読み取ってください。 / 请重新扫描二维码。"); return; }
+  let roomData = null;
   try {
     const snap = await getDoc(roomRef);
-    if (!snap.exists()) { notice("This conversation has ended. / この会話は終了しました。 / 对话已结束。"); return; }
+    roomData = snap.exists() ? snap.data() : null;
+    if (!fresh(roomData)) {
+      // 교사가 대화를 열 때까지 기다렸다가 열리면 자동으로 다시 불러옴
+      notice(NOT_READY);
+      onSnapshot(roomRef, (s) => { if (s.exists() && fresh(s.data())) location.reload(); }, () => {});
+      return;
+    }
+    roomCreated = roomData.createdAt || 0;
   } catch {
     notice("Connection error. Please scan the QR code again.");
     return;
@@ -258,5 +277,6 @@ function saveChat() {
 
   const saved = loadLang();
   if (saved && langByCode(saved)) chooseLang(saved);
+  else if (roomData.studentLang) notice(BUSY);
   else showPicker();
 })();

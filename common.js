@@ -72,6 +72,7 @@ const SVG = {
   close: '<path d="M6 6l12 12M18 6 6 18"/>',
   trash: '<path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/>',
   chevron: '<path d="m9 18 6-6-6-6"/>',
+  qr: '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v3M14 20h3M20 20h1"/>',
   book: '<path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3V4zM5 17a3 3 0 0 1 3-3h11"/>',
   text: '<path d="M4 19 9 6l5 13M5.8 15h6.4M16 19l3-8 2 8M16.8 17h4.4"/>',
 };
