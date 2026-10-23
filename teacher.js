@@ -1,4 +1,4 @@
-import { maskTerms, unmaskTerms, glossaryReady, listTerms, addTerm, removeTerm, exportUser, importUser } from "./glossary.js?v=2";
+import { maskTerms, unmaskTerms, glossaryReady, listTerms, addTerm, removeTerm, exportUser, importUser } from "./glossary.js?v=3";
 import { FIXED_ROOM_ID } from "./fixed-room.js?v=1";
 import { db, LANGS, langByCode, newRoomId, setupMic, setupComposer, bubble, hydrateIcons, setupFontSize } from "./common.js?v=12";
 import {

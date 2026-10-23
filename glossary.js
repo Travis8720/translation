@@ -15,7 +15,7 @@ function loadUser() {
 }
 function saveUser() { try { localStorage.setItem(KEY, JSON.stringify(user)); } catch {} }
 
-export const glossaryReady = fetch("glossary.json?v=1")
+export const glossaryReady = fetch("glossary.json?v=2")
   .then((r) => (r.ok ? r.json() : []))
   .then((g) => { entries = Array.isArray(g) ? g : []; })
   .catch(() => {});

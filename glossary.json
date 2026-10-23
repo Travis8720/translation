@@ -1,8 +1,18 @@
 [
-  { "ko": ["휴학", "휴학하다"], "en": "leave of absence" },
-  { "ko": "복학", "en": "return from leave" },
-  { "ko": "수강신청", "en": "course registration" },
-  { "ko": "학사경고", "en": "academic probation" },
-  { "ko": "학점", "en": "credits" },
-  { "ko": "졸업요건", "en": "graduation requirements" }
+  {"ko": ["휴학", "휴학하다"], "en": "leave of absence"},
+  {"ko": "복학", "en": "return from leave"},
+  {"ko": "수강신청", "en": "course registration"},
+  {"ko": "학사경고", "en": "academic probation"},
+  {"ko": "학점", "en": "credits"},
+  {"ko": "졸업요건", "en": "graduation requirements"},
+  {"ko": "학과장", "en": "department chair"},
+  {"ko": "학과사무실", "en": "department office"},
+  {"ko": "국제학부", "en": "DIS"},
+  {"ko": "이수구분 수정", "en": "reclassification of credits"},
+  {"ko": "자선", "en": "elective"},
+  {"ko": "교양", "en": "liberal arts"},
+  {"ko": "부전공", "en": "minor"},
+  {"ko": "이중전공", "en": "double major"},
+  {"ko": "전공", "en": "major"},
+  {"ko": "평점", "en": "GPA"}
 ]
