@@ -1,4 +1,5 @@
-import { db, LANGS, langByCode, newRoomId, setupMic, setupComposer, bubble } from "./common.js?v=9";
+import { maskTerms, unmaskTerms, glossaryReady, listTerms, addTerm, removeTerm, exportUser, importUser } from "./glossary.js?v=2";
+import { db, LANGS, langByCode, newRoomId, setupMic, setupComposer, bubble, hydrateIcons, setupFontSize } from "./common.js?v=11";
 import {
   doc, setDoc, getDoc, deleteDoc, updateDoc, onSnapshot, collection, addDoc, query, orderBy, getDocs, writeBatch,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
@@ -42,7 +43,17 @@ function trReason(e, L) {
 
 // 긴 글은 문장 단위로 나눠 번역한 뒤 이어 붙임 (번역기는 긴 문장에서 품질이 떨어짐)
 const SPLIT_OVER = 60;
+
+// 용어집에 있는 용어는 지정한 번역어로 고정 (표식이 번역 중 사라지면 용어집 없이 다시 번역)
 async function tr(text, src, tgt) {
+  await glossaryReady;
+  const m = maskTerms(text, src, tgt);
+  if (!m.used.length) return trSplit(text, src, tgt);
+  const back = unmaskTerms(await trSplit(m.text, src, tgt), m.used);
+  return back ?? trSplit(text, src, tgt);
+}
+
+async function trSplit(text, src, tgt) {
   const parts = text.length > SPLIT_OVER ? (text.match(/[^.!?。！？\n]+[.!?。！？]*[ \t]*\n*|\n+/g) || []) : [];
   if (parts.filter((p) => p.trim()).length < 2) return trOne(text, src, tgt);
   const cjk = tgt === "ja" || tgt.startsWith("zh");
@@ -135,10 +146,10 @@ function render() {
   }
   for (const m of lastMsgs) {
     if (m.from === "teacher") {
-      log.appendChild(bubble({ mine: true, main: m.text_ko, sub: m.text_student }));
+      log.appendChild(bubble({ mine: true, main: m.text_ko, sub: m.text_student, who: "나", ts: m.ts, copyLabel: "복사", copiedLabel: "복사됨" }));
     } else {
       const done = typeof m.text_ko === "string";
-      log.appendChild(bubble({ mine: false, main: done ? m.text_ko : "번역 중…", sub: m.text_student, pending: !done }));
+      log.appendChild(bubble({ mine: false, main: done ? m.text_ko : "번역 중…", sub: m.text_student, pending: !done, who: "상대방", ts: m.ts, copyLabel: "복사", copiedLabel: "복사됨" }));
     }
   }
   log.scrollTop = log.scrollHeight;
@@ -200,6 +211,7 @@ function closeLocal() {
   input.value = "";
   showError("");
   $("sessionView").hidden = true;
+  qrOverlay.hidden = true;
   $("startView").hidden = false;
   checkAvailability();
 }
@@ -258,6 +270,79 @@ setupMic(micBtn, input, () => "ko-KR", (ok) => {
 input.addEventListener("input", (e) => { if (e.isTrusted) micHint.hidden = true; });
 sendBtn.addEventListener("click", send);
 $("endBtn").addEventListener("click", endRoom);
+hydrateIcons();
+setupFontSize($("fontBtn"));
+
+// 용어집 화면: 용어 추가/삭제, 내 용어 내보내기/가져오기
+const gPanel = $("glossaryPanel");
+function renderGlossary() {
+  const list = $("gList");
+  list.replaceChildren();
+  const terms = listTerms();
+  if (!terms.length) { const li = document.createElement("li"); li.className = "g-empty"; li.textContent = "등록된 용어가 없습니다."; list.appendChild(li); return; }
+  for (const t of terms) {
+    const li = document.createElement("li");
+    const ko = document.createElement("span"); ko.className = "g-ko"; ko.textContent = t.ko;
+    const en = document.createElement("span"); en.className = "g-en"; en.textContent = t.en;
+    li.append(ko, en);
+    if (t.own) {
+      const del = document.createElement("button");
+      del.type = "button"; del.className = "g-del"; del.textContent = "삭제";
+      del.setAttribute("aria-label", `${t.ko} 삭제`);
+      del.addEventListener("click", () => { removeTerm(t.index); renderGlossary(); });
+      li.appendChild(del);
+    } else {
+      const tag = document.createElement("span"); tag.className = "g-tag"; tag.textContent = "기본"; li.appendChild(tag);
+    }
+    list.appendChild(li);
+  }
+}
+async function openGlossary() { await glossaryReady; renderGlossary(); $("gError").textContent = ""; gPanel.hidden = false; $("gKo").focus(); }
+const closeGlossary = () => { gPanel.hidden = true; $("gBtn").focus(); };
+$("gBtn").addEventListener("click", openGlossary);
+$("gClose").addEventListener("click", closeGlossary);
+gPanel.addEventListener("click", (e) => { if (e.target === gPanel) closeGlossary(); });
+$("gForm").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const err = addTerm($("gKo").value, $("gEn").value);
+  $("gError").textContent = err;
+  if (err) return;
+  $("gKo").value = ""; $("gEn").value = "";
+  renderGlossary();
+  $("gKo").focus();
+});
+$("gExport").addEventListener("click", () => {
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([exportUser()], { type: "application/json" }));
+  a.download = "glossary-mine.json";
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+});
+$("gImport").addEventListener("change", async (e) => {
+  const f = e.target.files[0];
+  if (!f) return;
+  $("gError").textContent = importUser(await f.text());
+  e.target.value = "";
+  renderGlossary();
+});
+document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !gPanel.hidden) closeGlossary(); });
+
+// QR 크게 보기 (교실 뒤쪽에서도 스캔할 수 있게 전체 화면으로 표시)
+const qrOverlay = $("qrOverlay");
+function openQrBig() {
+  if (!roomId) return;
+  const box = $("qrBigImg");
+  box.replaceChildren();
+  const size = Math.min(440, Math.floor(Math.min(innerWidth, innerHeight) * 0.6));
+  new QRCode(box, { text: studentUrl(roomId), width: size, height: size, correctLevel: QRCode.CorrectLevel.M });
+  qrOverlay.hidden = false;
+  $("qrClose").focus();
+}
+const closeQrBig = () => { qrOverlay.hidden = true; $("qrBig").focus(); };
+$("qrBig").addEventListener("click", openQrBig);
+$("qrClose").addEventListener("click", closeQrBig);
+qrOverlay.addEventListener("click", (e) => { if (e.target === qrOverlay) closeQrBig(); });
+document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !qrOverlay.hidden) closeQrBig(); });
 $("saveBtn").addEventListener("click", saveChat);
 
 // 대화를 텍스트 파일로 저장 (한국어 + 학생 언어)
@@ -275,7 +360,7 @@ function saveChat() {
     "------------------------------------------------------------",
   ];
   for (const m of lastMsgs) {
-    lines.push("", `[${hm(m.ts)}] ${m.from === "teacher" ? "교사" : "학생"}`);
+    lines.push("", `[${hm(m.ts)}] ${m.from === "teacher" ? "나" : "상대방"}`);
     lines.push(`  한국어: ${typeof m.text_ko === "string" ? m.text_ko : "(번역 중)"}`);
     lines.push(`  ${L ? L.name : "학생 언어"}: ${m.text_student || ""}`);
   }

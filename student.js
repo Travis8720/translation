@@ -1,4 +1,4 @@
-import { db, LANGS, langByCode, setupMic, setupComposer, bubble } from "./common.js?v=9";
+import { db, LANGS, langByCode, setupMic, setupComposer, bubble, icon, hydrateIcons, setupFontSize } from "./common.js?v=11";
 import {
   doc, getDoc, updateDoc, onSnapshot, collection, addDoc, query, orderBy,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
@@ -13,42 +13,42 @@ const roomRef = roomId ? doc(db, "rooms", roomId) : null;
 // 학생 화면 문구 (번역은 선생님 컴퓨터가 하므로, 화면 문구는 미리 적어 둡니다)
 const STRINGS = {
   en: {
-    fileTitle: "HUFS Interpretation System - Conversation record", fileDate: "Date", fileMe: "Me", fileTeacher: "Teacher",
-    save: "💾 Save", intro2: "This conversation is deleted when it ends. Tap Save to keep a copy.",
+    fileTitle: "HUFS Interpretation System - Conversation record", fileDate: "Date", fileMe: "Me", fileTeacher: "Other person",
+    save: "Save", me: "You", teacher: "Other person", copy: "Copy", copied: "Copied", fontSize: "Text size", intro2: "This conversation is deleted when it ends. Tap Save to keep a copy.",
     lowconf: "The speech may not have been recognized correctly. Please check the text (red underline = possible mistake) or say it again.",
     placeholder: "Type your message", send: "Send", change: "Change language",
-    intro: "Your messages are translated into Korean for your teacher.",
-    empty: "Write to your teacher here. You can also tap the microphone and speak.",
+    intro: "Your messages are translated into Korean for the other person.",
+    empty: "Write to the other person here. You can also tap the microphone and speak.",
     ended: "This conversation has ended. You can close this page.",
     failed: "Could not send. Please try again.",
   },
   ja: {
-    fileTitle: "HUFS 通訳システム - 会話記録", fileDate: "日付", fileMe: "私", fileTeacher: "先生",
-    save: "💾 保存", intro2: "会話が終了すると内容は削除されます。必要な場合は「保存」を押してください。",
+    fileTitle: "HUFS 通訳システム - 会話記録", fileDate: "日付", fileMe: "私", fileTeacher: "相手",
+    save: "保存", me: "あなた", teacher: "相手", copy: "コピー", copied: "コピーしました", fontSize: "文字サイズ", intro2: "会話が終了すると内容は削除されます。必要な場合は「保存」を押してください。",
     lowconf: "音声が正しく認識されていない可能性があります。文を確認するか、もう一度話してください（赤い下線は間違いの可能性）。",
     placeholder: "メッセージを入力", send: "送信", change: "言語を変更",
-    intro: "あなたのメッセージは先生のために韓国語に翻訳されます。",
-    empty: "ここに先生へのメッセージを書いてください。マイクを押して話すこともできます。",
+    intro: "あなたのメッセージは相手のために韓国語に翻訳されます。",
+    empty: "ここに相手へのメッセージを書いてください。マイクを押して話すこともできます。",
     ended: "この会話は終了しました。このページを閉じてください。",
     failed: "送信できませんでした。もう一度お試しください。",
   },
   "zh-CN": {
-    fileTitle: "HUFS 口译系统 - 对话记录", fileDate: "日期", fileMe: "我", fileTeacher: "老师",
-    save: "💾 保存", intro2: "对话结束后内容会被删除。需要的话请点击“保存”。",
+    fileTitle: "HUFS 口译系统 - 对话记录", fileDate: "日期", fileMe: "我", fileTeacher: "对方",
+    save: "保存", me: "我", teacher: "对方", copy: "复制", copied: "已复制", fontSize: "字体大小", intro2: "对话结束后内容会被删除。需要的话请点击“保存”。",
     lowconf: "语音可能没有被准确识别。请检查文字（红色下划线表示可能有错），或再说一遍。",
     placeholder: "输入消息", send: "发送", change: "更换语言",
-    intro: "你的消息会被翻译成韩语给老师看。",
-    empty: "在这里给老师写消息，也可以点麦克风说话。",
+    intro: "你的消息会被翻译成韩语给对方看。",
+    empty: "在这里给对方写消息，也可以点麦克风说话。",
     ended: "对话已结束，可以关闭此页面。",
     failed: "发送失败，请再试一次。",
   },
   "zh-TW": {
-    fileTitle: "HUFS 口譯系統 - 對話記錄", fileDate: "日期", fileMe: "我", fileTeacher: "老師",
-    save: "💾 儲存", intro2: "對話結束後內容會被刪除。需要的話請按「儲存」。",
+    fileTitle: "HUFS 口譯系統 - 對話記錄", fileDate: "日期", fileMe: "我", fileTeacher: "對方",
+    save: "儲存", me: "我", teacher: "對方", copy: "複製", copied: "已複製", fontSize: "字體大小", intro2: "對話結束後內容會被刪除。需要的話請按「儲存」。",
     lowconf: "語音可能沒有被準確辨識。請檢查文字（紅色底線表示可能有錯），或再說一次。",
     placeholder: "輸入訊息", send: "傳送", change: "更換語言",
-    intro: "你的訊息會被翻譯成韓文給老師看。",
-    empty: "在這裡給老師寫訊息，也可以點麥克風說話。",
+    intro: "你的訊息會被翻譯成韓文給對方看。",
+    empty: "在這裡給對方寫訊息，也可以點麥克風說話。",
     ended: "對話已結束，可以關閉此頁面。",
     failed: "傳送失敗，請再試一次。",
   },
@@ -91,7 +91,8 @@ function render() {
     log.appendChild(p);
   }
   for (const m of lastMsgs) {
-    log.appendChild(bubble({ mine: m.from === "student", main: m.text_student }));
+    const mine = m.from === "student";
+    log.appendChild(bubble({ mine, main: m.text_student, who: mine ? UI.me : UI.teacher, ts: m.ts, copyLabel: UI.copy, copiedLabel: UI.copied }));
   }
   log.scrollTop = log.scrollHeight;
 }
@@ -101,15 +102,19 @@ function applyUI(code) {
   input.placeholder = UI.placeholder;
   input.lang = code; // 브라우저 맞춤법 검사(빨간 밑줄)가 이 언어로 동작
   sendBtn.textContent = UI.send;
-  $("saveBtn").textContent = UI.save;
-  $("changeBtn").textContent = UI.change;
+  $("saveBtn").querySelector(".lbl").textContent = UI.save;
+  $("saveBtn").setAttribute("aria-label", UI.save);
+  $("changeBtn").querySelector(".lbl").textContent = UI.change;
+  $("changeBtn").setAttribute("aria-label", UI.change);
+  $("fontBtn").setAttribute("aria-label", UI.fontSize);
+  $("fontBtn").title = UI.fontSize;
 }
 
 function showPicker() {
   $("chatView").hidden = true;
   $("changeBtn").hidden = true;
   $("pickView").hidden = false;
-  $("headTitle").textContent = "🌐 Language / 言語 / 语言";
+  $("headTitle").textContent = "Language / 言語 / 语言";
 }
 
 async function chooseLang(code) {
@@ -123,7 +128,7 @@ async function chooseLang(code) {
     saveLang(code);
     document.documentElement.lang = code;
     applyUI(code);
-    $("headTitle").textContent = `🌐 ${L.name}`;
+    $("headTitle").textContent = L.name;
     $("pickView").hidden = true;
     $("chatView").hidden = false;
     $("changeBtn").hidden = false;
@@ -174,13 +179,20 @@ async function send() {
 for (const L of LANGS) {
   const b = document.createElement("button");
   b.className = "lang";
+  const t = document.createElement("span");
+  t.className = "lang-text";
   const n = document.createElement("b");
   n.textContent = L.name;
-  b.appendChild(n);
+  const k = document.createElement("small");
+  k.textContent = `${L.ko} · ${L.en}`;
+  t.append(n, k);
+  b.append(t, icon("chevron", 22));
   b.addEventListener("click", () => chooseLang(L.code));
   $("langs").appendChild(b);
 }
 
+hydrateIcons();
+setupFontSize($("fontBtn"));
 const grow = setupComposer(input, send);
 function setUncertain(on) {
   input.classList.toggle("uncertain", !!on);
@@ -208,7 +220,7 @@ function saveChat() {
   ];
   for (const m of lastMsgs) {
     const mine = m.from === "student";
-    lines.push("", `[${hm(m.ts)}] ${mine ? "학생 / Me" : "교사 / Teacher"}`);
+    lines.push("", `[${hm(m.ts)}] ${mine ? "학생 / Me" : "상대방 / Other person"}`);
     lines.push(`  ${L ? L.name : "Text"}: ${m.text_student || ""}`);
     if (typeof m.text_ko === "string") lines.push(`  한국어: ${m.text_ko}`);
   }

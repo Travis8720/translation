@@ -3,23 +3,25 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>통역시스템</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💬</text></svg>">
+  <title>HUFS 통역시스템</title>
+  <link rel="icon" href="logo.png">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
-  <link rel="stylesheet" href="style.css?v=6">
+  <link rel="stylesheet" href="style.css?v=7">
 </head>
 <body>
   <div class="s-app">
     <header class="s-head">
       <img class="logo" src="logo.png" alt="HUFS">
-      <h1 id="headTitle">🌐 Language / 언어</h1>
-      <button id="saveBtn" class="btn plain" hidden>💾 Save</button>
-      <button id="changeBtn" class="btn plain" hidden>Change language</button>
+      <h1 id="headTitle">Language / 언어</h1>
+      <button id="fontBtn" class="btn plain icon-only" data-icon="text" aria-label="Text size" aria-pressed="false"></button>
+      <button id="saveBtn" class="btn plain" data-icon="download" aria-label="Save" hidden><span class="lbl">Save</span></button>
+      <button id="changeBtn" class="btn plain" data-icon="globe" aria-label="Change language" hidden><span class="lbl">Change language</span></button>
     </header>
 
     <section id="pickView" class="pick" hidden>
+      <p class="eyebrow">INTERPRETATION SYSTEM</p>
       <h2>Choose your language</h2>
-      <p>言語を選んでください / 请选择语言 / 請選擇語言</p>
+      <p class="pick-sub">言語を選んでください / 请选择语言 / 請選擇語言</p>
       <div class="langs" id="langs"></div>
       <p class="error" id="pickError"></p>
     </section>
@@ -31,7 +33,7 @@
       <p class="error" id="error"></p>
       <p class="mic-hint" id="micHint" hidden></p>
       <div class="composer">
-        <button class="icon-btn" id="mic" aria-label="Speak" aria-pressed="false">🎤</button>
+        <button class="icon-btn" id="mic" data-icon="mic" data-size="22" aria-label="Speak" aria-pressed="false"></button>
         <textarea id="input" rows="1" dir="auto" spellcheck="true" placeholder="Type your message"></textarea>
         <button class="btn" id="send">Send</button>
       </div>
@@ -40,6 +42,6 @@
     <p id="notice" class="notice" hidden></p>
   </div>
 
-  <script type="module" src="student.js?v=9"></script>
+  <script type="module" src="student.js?v=12"></script>
 </body>
 </html>

@@ -1,0 +1,8 @@
+[
+  { "ko": ["휴학", "휴학하다"], "en": "leave of absence" },
+  { "ko": "복학", "en": "return from leave" },
+  { "ko": "수강신청", "en": "course registration" },
+  { "ko": "학사경고", "en": "academic probation" },
+  { "ko": "학점", "en": "credits" },
+  { "ko": "졸업요건", "en": "graduation requirements" }
+]

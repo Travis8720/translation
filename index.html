@@ -3,15 +3,19 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>통역시스템</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💬</text></svg>">
+  <title>HUFS 통역시스템</title>
+  <link rel="icon" href="logo.png">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
   <link rel="stylesheet" href="signature.css">
-  <link rel="stylesheet" href="style.css?v=6">
+  <link rel="stylesheet" href="style.css?v=7">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
 <body>
-  <div class="util-bar"><span>KOR</span><span>ENG</span></div>
+  <div class="util-bar">
+    <button id="gBtn" class="util-btn wide" data-icon="book" data-size="16" aria-haspopup="dialog">용어집</button>
+    <button id="fontBtn" class="util-btn" data-icon="text" data-size="16" aria-label="글자 크기" aria-pressed="false" title="글자 크기"></button>
+    <span>KOR</span><span>ENG</span>
+  </div>
   <header class="site-head">
     <div class="wrap">
       <img class="logo" src="logo.png" alt="한국외국어대학교 HUFS">
@@ -23,9 +27,14 @@
     <div class="start-inner">
       <h1>학생과 각자의 언어로 대화하기</h1>
       <p>번역은 이 컴퓨터의 크롬 안에서 처리됩니다. 대화하는 동안 이 창을 닫지 마세요.</p>
+      <ol class="stepper" id="stepper" aria-label="진행 순서">
+        <li class="on"><i>1</i>번역 모델 준비</li>
+        <li><i>2</i>QR 공유</li>
+        <li><i>3</i>대화 시작</li>
+      </ol>
       <p id="noSupport" class="warn" hidden>이 브라우저에서는 내장 번역을 쓸 수 없습니다. 컴퓨터용 크롬 최신 버전(138 이상)으로 열어 주세요.</p>
       <ul class="checks" id="checks"></ul>
-      <button id="startBtn" class="btn">번역 준비하고 새 대화 시작</button>
+      <button id="startBtn" class="btn block">번역 준비하고 새 대화 시작</button>
       <p id="startError" class="error"></p>
     </div>
   </main>
@@ -33,29 +42,60 @@
   <div id="sessionView" class="session" hidden>
     <aside class="side">
       <div class="qr-frame" id="qr"></div>
+      <button id="qrBig" class="btn outline" data-icon="expand" data-size="16">QR 크게 보기</button>
       <p class="hint">학생에게 이 QR코드를 휴대폰 카메라로 찍게 하세요.</p>
       <p class="link" id="link"></p>
       <p class="status" id="status">학생 접속을 기다리는 중</p>
       <div class="spacer"></div>
-      <button id="saveBtn" class="btn save-btn" disabled>💾 대화 저장 (.txt)</button>
-      <button id="endBtn" class="btn danger-ghost">대화 끝내고 기록 삭제</button>
+      <button id="saveBtn" class="btn outline" data-icon="download" disabled>대화 저장 (.txt)</button>
+      <button id="endBtn" class="btn danger-ghost" data-icon="trash">대화 끝내고 기록 삭제</button>
     </aside>
 
     <section class="chat">
       <div class="log" id="log" aria-live="polite"></div>
       <p class="error" id="error"></p>
       <p class="mic-hint" id="micHint" hidden></p>
-      <p class="tip">💡 짧고 완결된 문장으로 쓰면 번역이 더 정확합니다. 줄임말·속어·생략된 말은 피하세요.</p>
+      <p class="tip">짧고 완결된 문장으로 쓰면 번역이 더 정확합니다. 줄임말·속어·생략된 말은 피하세요.</p>
       <div class="composer">
-        <button class="icon-btn" id="mic" aria-label="말로 입력" aria-pressed="false" disabled>🎤</button>
+        <button class="icon-btn" id="mic" data-icon="mic" data-size="22" aria-label="말로 입력" aria-pressed="false" disabled></button>
         <textarea id="input" rows="1" dir="auto" placeholder="학생이 접속하면 입력할 수 있습니다" disabled></textarea>
         <button class="btn" id="send" disabled>보내기</button>
       </div>
     </section>
   </div>
 
-  <footer class="site-foot">Translate Chat · 번역은 이 컴퓨터 안에서 처리됩니다 · v11</footer>
+  <div id="qrOverlay" class="qr-overlay" role="dialog" aria-modal="true" aria-label="QR 코드" hidden>
+    <div class="qr-big-frame" id="qrBigImg"></div>
+    <p class="qr-big-title">휴대폰 카메라로 QR코드를 찍어 주세요</p>
+    <p class="qr-big-sub">Scan with your phone camera · カメラで読み取り · 请扫描二维码 · 請掃描 QR 碼</p>
+    <button id="qrClose" class="btn plain" data-icon="close" data-size="18">닫기 (Esc)</button>
+  </div>
 
-  <script type="module" src="teacher.js?v=11"></script>
+  <div id="glossaryPanel" class="modal" role="dialog" aria-modal="true" aria-labelledby="gTitle" hidden>
+    <div class="modal-card">
+      <div class="modal-head">
+        <h2 id="gTitle">용어집</h2>
+        <button id="gClose" class="close-x" data-icon="close" data-size="20" aria-label="닫기"></button>
+      </div>
+      <p class="hint">여기서 정한 용어는 번역할 때 항상 지정한 표현으로 바뀝니다. (한국어 ↔ 영어)</p>
+      <form id="gForm" class="g-form" autocomplete="off">
+        <label>한국어<input id="gKo" maxlength="40" placeholder="예: 휴학, 휴학하다" required></label>
+        <label>English<input id="gEn" maxlength="80" placeholder="e.g. leave of absence" required></label>
+        <button class="btn" type="submit">추가</button>
+      </form>
+      <p class="hint small">쉼표로 같은 뜻의 다른 표기를 함께 쓸 수 있습니다. 같은 용어를 다시 추가하면 덮어씁니다.</p>
+      <p class="error" id="gError"></p>
+      <ul class="g-list" id="gList"></ul>
+      <div class="g-foot">
+        <button id="gExport" class="btn outline" type="button" data-icon="download" data-size="16">내 용어 내보내기</button>
+        <label class="btn outline" for="gImport">가져오기</label>
+        <input id="gImport" type="file" accept=".json,application/json" hidden>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-foot">Translate Chat · 번역은 이 컴퓨터 안에서 처리됩니다 · v16</footer>
+
+  <script type="module" src="teacher.js?v=16"></script>
 </body>
 </html>
