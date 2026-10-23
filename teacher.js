@@ -1,5 +1,6 @@
 import { maskTerms, unmaskTerms, glossaryReady, listTerms, addTerm, removeTerm, exportUser, importUser } from "./glossary.js?v=3";
 import { FIXED_ROOM_ID } from "./fixed-room.js?v=1";
+import { splitSentences } from "./split.js?v=1";
 import { db, LANGS, langByCode, newRoomId, setupMic, setupComposer, bubble, hydrateIcons, setupFontSize } from "./common.js?v=12";
 import {
   doc, setDoc, getDoc, deleteDoc, updateDoc, onSnapshot, collection, addDoc, query, orderBy, getDocs, writeBatch,
@@ -55,7 +56,7 @@ async function tr(text, src, tgt) {
 }
 
 async function trSplit(text, src, tgt) {
-  const parts = text.length > SPLIT_OVER ? (text.match(/[^.!?。！？\n]+[.!?。！？]*[ \t]*\n*|\n+/g) || []) : [];
+  const parts = text.length > SPLIT_OVER ? splitSentences(text) : [];
   if (parts.filter((p) => p.trim()).length < 2) return trOne(text, src, tgt);
   const cjk = tgt === "ja" || tgt.startsWith("zh");
   const out = await Promise.all(parts.map(async (p) => {
