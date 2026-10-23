@@ -52,7 +52,8 @@ button:focus-visible, textarea:focus-visible, input:focus-visible { outline: 3px
 .start .error { margin-top: 1rem; }
 
 /* 교사 화면 */
-.session { flex: 1; min-height: 0; display: grid; grid-template-columns: 248px 1fr; }
+.session { flex: 1; min-height: 0; display: grid; grid-template-columns: calc(280px * var(--fs, 1)) 1fr; }
+.side .btn { white-space: nowrap; padding-left: .8em; padding-right: .8em; }
 .side { background: var(--paper); border-right: 1px solid var(--line); padding: 20px; display: flex; flex-direction: column; gap: 14px; overflow: auto; }
 .qr-frame { background: #fff; border: 1px solid var(--line); border-radius: 6px; padding: 8px; width: max-content; margin: 0 auto; display: grid; place-items: center; }
 .qr-frame img, .qr-frame canvas { max-width: 100%; height: auto; }
